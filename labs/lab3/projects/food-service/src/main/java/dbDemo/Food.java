@@ -32,7 +32,7 @@ We explicitly map the id variable to the "r_id column in the database table
  // The following parameters map to the same column name in the food table
  private String name;
  private String author;
- private int rating;
+ private String rating;
  private String category;
  private String country;
 
@@ -45,7 +45,7 @@ This is the constructor for the database object.
 @param raiting A rating of the particular food item
 @param category Culinary category the food item belongs to
 **/
- public Food(String name, String author, int rating, String category, String country) {
+ public Food(String name, String author, String rating, String category, String country) {
      this.name = name;
      this.author = author;
      this.rating = rating;
@@ -77,11 +77,11 @@ public void setAuthor(String author) {
 	this.author = author;
 }
 
-public int getRating() {
+public String getRating() {
 	return rating;
 }
 
-public void setRating(int rating) {
+public void setRating(String rating) {
 	this.rating = rating;
 }
 
