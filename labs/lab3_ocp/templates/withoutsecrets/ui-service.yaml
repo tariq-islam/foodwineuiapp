@@ -5,7 +5,6 @@ metadata:
     wineapp: "1.0"
   name: wineapp-ui
 spec:
-  clusterIP: 172.30.37.86
   ports:
   - name: web
     port: 8080

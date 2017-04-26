@@ -4,6 +4,7 @@ metadata:
   name: wineapp-food-service
   labels:
     wineapp: "1.0"
+    name: wineapp-food-service
 spec:
   containers:
   - env:

@@ -4,6 +4,7 @@ metadata:
   name: wineapp-postgresql
   labels:
     wineapp: "1.0"
+    name: wineapp-postgresql
 spec:
   containers:
   - env:
