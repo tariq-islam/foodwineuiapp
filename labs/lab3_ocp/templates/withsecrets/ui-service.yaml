@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    wineapp: "1.0"
+  name: wineapp-ui
+spec:
+  ports:
+  - name: web
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    name: wineapp-ui
+  sessionAffinity: None
+  type: ClusterIP

@@ -13,9 +13,15 @@ spec:
     - name: DATABASE_NAME
       value: winedb
     - name: DATABASE_USER
-      value: userMhe
+      valueFrom:
+        secretKeyRef:
+          name: db-user-pass
+          key: username
     - name: DATABASE_PASSWORD
-      value: aDb5oeeE
+      valueFrom:
+        secretKeyRef:
+          name: db-user-pass
+          key: password
     image: 172.30.121.33:5000/without-secrets/wineapp-wine-service
     imagePullPolicy: Always
     name: wineapp-wine-service
