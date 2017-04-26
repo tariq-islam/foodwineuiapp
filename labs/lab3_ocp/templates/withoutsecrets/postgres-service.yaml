@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    wineapp: "1.0"
+  name: wineapp-postgresql
+spec:
+  clusterIP: 172.30.189.96
+  ports:
+  - name: postgresql
+    port: 5432
+    protocol: TCP
+    targetPort: 5432
+  selector:
+    name: wineapp-postgresql
+  sessionAffinity: None
+  type: ClusterIP

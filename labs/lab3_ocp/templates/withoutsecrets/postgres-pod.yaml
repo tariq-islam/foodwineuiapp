@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: wineapp-postgresql
+  labels:
+    wineapp: "1.0"
+spec:
+  containers:
+  - env:
+    - name: POSTGRESQL_USER
+      value: userMhe
+    - name: POSTGRESQL_PASSWORD
+      value: aDb5oeeE
+    - name: POSTGRESQL_DATABASE
+      value: winedb
+    image: registry.access.redhat.com/rhscl/postgresql-94-rhel7
+    imagePullPolicy: Always
+    name: wineapp-postgresql
+    ports:
+    - containerPort: 5432
+      protocol: TCP
+  restartPolicy: Never
