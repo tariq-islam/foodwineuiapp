@@ -1,0 +1,391 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: wineapp
+  wineapp: "1.0"
+metadata:
+  annotations:
+    description: Red Hat Food Application Template
+    tags: java,database
+    version: "1.0"
+  creationTimestamp: 2017-04-26T20:11:26Z
+  name: wineapp
+  namespace: with-secrets
+  resourceVersion: "3354"
+  selfLink: /oapi/v1/namespaces/with-secrets/templates/wineapp
+  uid: 86b99db2-2abc-11e7-88c2-5254003b33d2
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: Wine Web Service
+    name: ${APPLICATION_NAME}-wine-service
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      name: ${APPLICATION_NAME}-wine-service
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: Food Web Service
+    name: ${APPLICATION_NAME}-food-service
+  spec:
+    ports:
+    - name: web
+      port: 8080
+      targetPort: 8080
+    selector:
+      name: ${APPLICATION_NAME}-food-service
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ${APPLICATION_NAME}-postgresql
+  spec:
+    ports:
+    - name: postgresql
+      port: 5432
+      targetPort: 5432
+    selector:
+      name: ${APPLICATION_NAME}-postgresql
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: The UI frontend of the application
+    name: ${APPLICATION_NAME}-ui
+  spec:
+    ports:
+    - name: web
+      port: 8080
+      targetPort: 8080
+    selector:
+      name: ${APPLICATION_NAME}-ui
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: ${APPLICATION_NAME}-route
+  spec:
+    host: ${APPLICATION_NAME}.${APPLICATION_DOMAIN}
+    to:
+      kind: Service
+      name: ${APPLICATION_NAME}-ui
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      description: Keeps track of changes to the UI application
+    name: ${APPLICATION_NAME}-ui
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      description: Keeps track of changes to the food-service application
+    name: ${APPLICATION_NAME}-food-service
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      description: Keeps track of changes to the wine-service application
+    name: ${APPLICATION_NAME}-wine-service
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: ${APPLICATION_NAME}-food-service
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${APPLICATION_NAME}-food-service:latest
+    source:
+      contextDir: labs/lab3/projects/food-service
+      git:
+        ref: secrets
+        uri: https://github.com/tariq-islam/summit-2017-dataservices.git
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: jboss-webserver30-tomcat8-openshift:latest
+          namespace: openshift
+      type: Source
+    triggers:
+    - github:
+        secret: ${GITHUB_WEBHOOK_SECRET}
+      type: GitHub
+    - generic:
+        secret: ${GENERIC_WEBHOOK_SECRET}
+      type: Generic
+    - type: ConfigChange
+    - type: ImageChange
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: ${APPLICATION_NAME}-ui
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${APPLICATION_NAME}-ui:latest
+    source:
+      contextDir: labs/lab3/projects/ui-service
+      git:
+        ref: secrets
+        uri: https://github.com/tariq-islam/summit-2017-dataservices.git
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: jboss-webserver30-tomcat8-openshift:latest
+          namespace: openshift
+      type: Source
+    triggers:
+    - github:
+        secret: ${GITHUB_WEBHOOK_SECRET}
+      type: GitHub
+    - generic:
+        secret: ${GENERIC_WEBHOOK_SECRET}
+      type: Generic
+    - type: ConfigChange
+    - type: ImageChange
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: ${APPLICATION_NAME}-wine-service
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${APPLICATION_NAME}-wine-service:latest
+    source:
+      contextDir: labs/lab3/projects/wine-service
+      git:
+        ref: secrets
+        uri: https://github.com/tariq-islam/summit-2017-dataservices.git
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: jboss-webserver30-tomcat8-openshift:latest
+          namespace: openshift
+      type: Source
+    triggers:
+    - github:
+        secret: ${GITHUB_WEBHOOK_SECRET}
+      type: GitHub
+    - generic:
+        secret: ${GENERIC_WEBHOOK_SECRET}
+      type: Generic
+    - type: ConfigChange
+    - type: ImageChange
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: ${APPLICATION_NAME}-food-service
+  spec:
+    replicas: 1
+    selector:
+      name: ${APPLICATION_NAME}-food-service
+    strategy:
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          name: ${APPLICATION_NAME}-food-service
+      spec:
+        containers:
+        - env:
+          - name: DATABASE_FQDN
+            value: ${APPLICATION_NAME}-postgresql
+          - name: DATABASE_NAME
+            value: ${DB_DATABASE}
+          - name: DATABASE_USER
+            valueFrom:
+            - secretKeyRef:
+              - key: username
+                name: db-user-pass
+          - name: DATABASE_PASSWORD
+            valueFrom:
+            - secretKeyRef:
+              - key: password
+                name: db-user-pass
+          image: ${APPLICATION_NAME}-food-service
+          name: ${APPLICATION_NAME}-food-service
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${APPLICATION_NAME}-food-service
+        from:
+          kind: ImageStreamTag
+          name: ${APPLICATION_NAME}-food-service:latest
+      type: ImageChange
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: ${APPLICATION_NAME}-postgresql
+  spec:
+    replicas: 1
+    selector:
+      name: ${APPLICATION_NAME}-postgresql
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          name: ${APPLICATION_NAME}-postgresql
+        name: ${APPLICATION_NAME}-postgresql
+      spec:
+        containers:
+        - env:
+          - name: POSTGRESQL_USER
+            valueFrom:
+            - secretKeyRef:
+              - key: username
+                name: db-user-pass
+          - name: POSTGRESQL_PASSWORD
+            valueFrom:
+            - secretKeyRef:
+              - key: password
+                name: db-user-pass
+          - name: POSTGRESQL_DATABASE
+            value: ${DB_DATABASE}
+          image: registry.access.redhat.com/rhscl/postgresql-94-rhel7:latest
+          name: ${APPLICATION_NAME}-postgresql
+          ports:
+          - containerPort: 5432
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${APPLICATION_NAME}-postgresql
+        from:
+          kind: ImageStreamTag
+          name: postgresql:9.4
+          namespace: openshift
+      type: ImageChange
+    - type: ConfigChange
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: ${APPLICATION_NAME}-ui
+  spec:
+    replicas: 1
+    selector:
+      name: ${APPLICATION_NAME}-ui
+    strategy:
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          name: ${APPLICATION_NAME}-ui
+      spec:
+        containers:
+        - env:
+          - name: FOOD_SERVICE
+            value: ${APPLICATION_NAME}-food-service
+          - name: WINE_SERVICE
+            value: ${APPLICATION_NAME}-wine-service
+          image: ui
+          name: ${APPLICATION_NAME}-ui
+          ports:
+          - containerPort: 8080
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${APPLICATION_NAME}-ui
+        from:
+          kind: ImageStreamTag
+          name: ${APPLICATION_NAME}-ui:latest
+      type: ImageChange
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: ${APPLICATION_NAME}-wine-service
+  spec:
+    replicas: 1
+    selector:
+      name: ${APPLICATION_NAME}-wine-service
+    strategy:
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          name: ${APPLICATION_NAME}-wine-service
+      spec:
+        containers:
+        - env:
+          - name: DATABASE_FQDN
+            value: ${APPLICATION_NAME}-postgresql
+          - name: DATABASE_NAME
+            value: ${DB_DATABASE}
+          - name: DATABASE_USER
+            valueFrom:
+            - secretKeyRef:
+              - key: username
+                name: db-user-pass
+          - name: DATABASE_PASSWORD
+            valueFrom:
+            - secretKeyRef:
+              - key: password
+                name: db-user-pass
+          image: ${APPLICATION_NAME}-wine-service
+          name: ${APPLICATION_NAME}-wine-service
+          ports:
+          - containerPort: 8080
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${APPLICATION_NAME}-wine-service
+        from:
+          kind: ImageStreamTag
+          name: ${APPLICATION_NAME}-wine-service:latest
+      type: ImageChange
+parameters:
+- description: The name for the application.
+  name: APPLICATION_NAME
+  required: true
+  value: wineapp
+- description: 'Custom hostname for service routes.  Leave blank for default hostname,
+    e.g.: <application-name>.<project>.<default-domain-suffix>'
+  name: APPLICATION_DOMAIN
+  required: true
+  value: 10.1.2.2.nip.io
+- description: Database name
+  name: DB_DATABASE
+  required: true
+  value: winedb
+- description: Database user name
+  name: DB_USERNAME
+  required: true
+  value: admin
+- description: Database user password
+  name: DB_PASSWORD
+  required: true
+  value: supersekret
+- description: GitHub trigger secret
+  from: '[a-zA-Z0-9]{8}'
+  generate: expression
+  name: GITHUB_WEBHOOK_SECRET
+  required: true
+- description: Generic build trigger secret
+  from: '[a-zA-Z0-9]{8}'
+  generate: expression
+  name: GENERIC_WEBHOOK_SECRET
+  required: true

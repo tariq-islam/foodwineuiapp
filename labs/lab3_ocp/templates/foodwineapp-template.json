@@ -35,15 +35,13 @@
         {
             "description": "Database user name",
             "name": "DB_USERNAME",
-            "from": "user[a-zA-Z0-9]{3}",
-            "generate": "expression",
+            "value": "admin",
             "required": true
         },
         {
             "description": "Database user password",
             "name": "DB_PASSWORD",
-            "from": "[a-zA-Z0-9]{8}",
-            "generate": "expression",
+            "value": "supersekret",
             "required": true
         },
         {
@@ -413,11 +411,29 @@
                                     },
                                     {
                                         "name": "DATABASE_USER",
-                                        "value": "${DB_USERNAME}"
+                                        "valueFrom": [
+                                            {
+                                                "secretKeyRef": [
+                                                    {
+                                                        "name": "db-user-pass",
+                                                        "key": "username"
+                                                    }
+                                                ]
+                                            }
+                                        ]
                                     },
                                     {
                                         "name": "DATABASE_PASSWORD",
-                                        "value": "${DB_PASSWORD}"
+                                        "valueFrom": [
+                                            {
+                                                "secretKeyRef": [
+                                                    {
+                                                        "name": "db-user-pass",
+                                                        "key": "password"
+                                                    }
+                                                ]
+                                            }
+                                        ]
                                     }
                                 ]
                             }
@@ -479,11 +495,29 @@
                                 "env": [
                                     {
                                         "name": "POSTGRESQL_USER",
-                                        "value": "${DB_USERNAME}"
+                                        "valueFrom": [
+                                            {
+                                                "secretKeyRef": [
+                                                    {
+                                                        "name": "db-user-pass",
+                                                        "key": "username"
+                                                    }
+                                                ]
+                                            }
+                                        ]
                                     },
                                     {
                                         "name": "POSTGRESQL_PASSWORD",
-                                        "value": "${DB_PASSWORD}"
+                                        "valueFrom": [
+                                            {
+                                                "secretKeyRef": [
+                                                    {
+                                                        "name": "db-user-pass",
+                                                        "key": "password"
+                                                    }
+                                                ]
+                                            }
+                                        ]
                                     },
                                     {
                                         "name": "POSTGRESQL_DATABASE",
@@ -619,11 +653,29 @@
                                     },
                                     {
                                         "name": "DATABASE_USER",
-                                        "value": "${DB_USERNAME}"
+                                        "valueFrom": [
+                                            {
+                                                "secretKeyRef": [
+                                                    {
+                                                        "name": "db-user-pass",
+                                                        "key": "username"
+                                                    }
+                                                ]
+                                            }
+                                        ]
                                     },
                                     {
                                         "name": "DATABASE_PASSWORD",
-                                        "value": "${DB_PASSWORD}"
+                                        "valueFrom": [
+                                            {
+                                                "secretKeyRef": [
+                                                    {
+                                                        "name": "db-user-pass",
+                                                        "key": "password"
+                                                    }
+                                                ]
+                                            }
+                                        ]
                                     }
                                 ]
                             }
