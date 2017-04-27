@@ -22,7 +22,7 @@ spec:
         secretKeyRef:
           name: db-user-pass
           key: password
-    image: without-secrets/wineapp-food-service:latest
+    image: 172.30.118.98:5000/with-secrets/wineapp-food-service:latest
     imagePullPolicy: Always
     name: wineapp-food-service
     ports:
