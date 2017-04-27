@@ -16,7 +16,7 @@ spec:
       value: userMhe
     - name: DATABASE_PASSWORD
       value: aDb5oeeE
-    image: 172.30.121.33:5000/without-secrets/wineapp-wine-service
+    image: without-secrets/wineapp-wine-service
     imagePullPolicy: Always
     name: wineapp-wine-service
     ports:
