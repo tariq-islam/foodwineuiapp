@@ -9,9 +9,9 @@ spec:
   containers:
   - env:
     - name: POSTGRESQL_USER
-      value: userMhe
+      value: admin
     - name: POSTGRESQL_PASSWORD
-      value: aDb5oeeE
+      value: supersekret
     - name: POSTGRESQL_DATABASE
       value: winedb
     image: registry.access.redhat.com/rhscl/postgresql-94-rhel7

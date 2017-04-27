@@ -13,9 +13,9 @@ spec:
     - name: DATABASE_NAME
       value: winedb
     - name: DATABASE_USER
-      value: userMhe
+      value: admin
     - name: DATABASE_PASSWORD
-      value: aDb5oeeE
+      value: supersekret
     image: 172.30.118.98:5000/without-secrets/wineapp-wine-service
     imagePullPolicy: Always
     name: wineapp-wine-service
