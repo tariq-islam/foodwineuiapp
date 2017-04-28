@@ -16,7 +16,7 @@ spec:
       value: exposed_admin
     - name: DATABASE_PASSWORD
       value: not_so_sekret
-    image: 172.30.118.98:5000/without-secrets/wineapp-food-service:latest
+    image: 172.30.235.66:5000/without-secrets/wineapp-food-service:latest
     imagePullPolicy: Always
     name: wineapp-food-service
     ports:

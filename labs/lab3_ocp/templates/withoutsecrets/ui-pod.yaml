@@ -12,7 +12,7 @@ spec:
       value: wineapp-food-service
     - name: WINE_SERVICE
       value: wineapp-wine-service
-    image: 172.30.118.98:5000/without-secrets/wineapp-ui:latest
+    image: 172.30.235.66:5000/without-secrets/wineapp-ui:latest
     imagePullPolicy: Always
     name: wineapp-ui
     ports:
