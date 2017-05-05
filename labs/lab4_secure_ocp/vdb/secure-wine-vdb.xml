@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<vdb name="secure-wine" version="1">
+<vdb name="wine" version="1">
 <description/>
 <property name="validationDateTime" value="Fri Dec 16 09:20:47 CET 2016"/>
 <property name="validationVersion" value="8.12.9"/>
@@ -7,11 +7,11 @@
 <source connection-jndi-name="java:/postgresql_ds" name="postgresql_ds" translator-name="postgresql"/>
 <metadata type="DDL"><![CDATA[
 CREATE FOREIGN TABLE wine_PG (
-        wine_id integer NOT NULL OPTIONS(NAMEINSOURCE '"wine_id"', NATIVE_TYPE 'INTEGER', FIXED_LENGTH 'TRUE'),
+        wine_id string(255) NOT NULL OPTIONS(NAMEINSOURCE '"wine_id"', NATIVE_TYPE 'VARCHAR'),
         vineyard string(255) NOT NULL OPTIONS(NAMEINSOURCE '"vineyard"', NATIVE_TYPE 'VARCHAR'),
         varietal string(255) NOT NULL OPTIONS(NAMEINSOURCE '"varietal"', NATIVE_TYPE 'VARCHAR'),
         name string(255) NOT NULL OPTIONS(NAMEINSOURCE '"name"', NATIVE_TYPE 'VARCHAR'),
-        "year" integer NOT NULL OPTIONS(NAMEINSOURCE '"year"', NATIVE_TYPE 'INTEGER', FIXED_LENGTH 'TRUE'),
+        vintageyear integer NOT NULL OPTIONS(NAMEINSOURCE 'vintageyear', NATIVE_TYPE 'INTEGER', FIXED_LENGTH 'TRUE'),
         country string(255) NOT NULL OPTIONS(NAMEINSOURCE '"country"', NATIVE_TYPE 'VARCHAR'),
         CONSTRAINT wine_pkey PRIMARY KEY(wine_id)
 ) OPTIONS(NAMEINSOURCE '"public"."wine"', UPDATABLE 'TRUE')
@@ -20,30 +20,31 @@ CREATE FOREIGN TABLE wine_PG (
 <model name="Services" type="VIRTUAL">
 <metadata type="DDL"><![CDATA[
 CREATE VIEW wine (
-        wine_id integer NOT NULL,
+        wine_id string(255) NOT NULL,
         vineyard string(255) NOT NULL,
         varietal string(255) NOT NULL,
         name string(255) NOT NULL,
-        "year" integer NOT NULL,
+        vintageyear integer NOT NULL,
         country string(255) NOT NULL,
         CONSTRAINT wine_pkey PRIMARY KEY(wine_id)
-)
+) OPTIONS (UPDATABLE 'TRUE')
 AS
-        SELECT wine_id, vineyard, varietal, name, "year", country from postgresql_ds.wine_PG;
+        SELECT wine_id, vineyard, varietal, name, vintageyear, country from postgresql_ds.wine_PG;
 ]]></metadata>
 </model>
 <data-role any-authenticated="true" name="Restriction">
 <permission>
 <resource-name>Services</resource-name>
+<allow-create>true</allow-create>
 <allow-read>true</allow-read>
 </permission>
 <permission>
 <resource-name>Services.wine</resource-name>
-<condition>UCASE(country) in  ('FRANCE', 'SPAIN')</condition>
+<condition>UCASE(country) in  ('France', 'USA')</condition>
 </permission>
 <permission>
 <resource-name>Services.wine.varietal</resource-name>
-<mask order="0">'SUMMIT2017'</mask>
+<mask order="0">'Summit2017'</mask>
 </permission>
 </data-role>
 </vdb>
